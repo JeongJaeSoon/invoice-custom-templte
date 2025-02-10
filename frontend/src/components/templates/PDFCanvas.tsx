@@ -198,7 +198,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
       style={{
         width: `${canvasWidth}px`,
         height: `${canvasHeight}px`,
-        margin: '2rem auto',
+        // margin: '2rem auto',
       }}
     >
       {components.map(renderComponent)}

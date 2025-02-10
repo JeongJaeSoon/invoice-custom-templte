@@ -89,7 +89,11 @@ const TemplateEditPage = () => {
   };
 
   const handleComponentsReorder = (reorderedComponents: CanvasComponent[]) => {
-    setComponents(reorderedComponents);
+    const updatedComponents = reorderedComponents.map((component, index) => ({
+      ...component,
+      zIndex: reorderedComponents.length - index,
+    }));
+    setComponents(updatedComponents);
   };
 
   return (

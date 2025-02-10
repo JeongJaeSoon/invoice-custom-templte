@@ -31,7 +31,7 @@ const TemplateEditorPanel: React.FC<TemplateEditorPanelProps> = ({
   onComponentsReorder,
 }) => {
   return (
-    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+    <div className="w-96 bg-white border-l border-gray-200 overflow-y-auto">
       <ComponentList onComponentSelect={onComponentSelect} />
       <ComponentListPanel
         components={components}
