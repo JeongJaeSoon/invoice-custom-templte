@@ -2,6 +2,11 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
   return (
+    <>
+      <h1 className="text-3xl font-bold underline">
+        Invoice Custom Template
+      </h1>
+
     <Router>
       <Routes>
         {/* 템플릿 관련 URL */}
@@ -17,6 +22,7 @@ function App() {
         <Route path="/invoices/:id/download" element={<div>PDF 다운로드 페이지 (추후 구현)</div>} />
       </Routes>
     </Router>
+    </>
   );
 }
 
