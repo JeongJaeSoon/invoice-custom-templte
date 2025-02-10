@@ -83,6 +83,11 @@ const TemplateEditPage = () => {
     });
   };
 
+  const handleNameChange = (name: string) => {
+    if (!selectedComponent) return;
+    handleComponentUpdate(selectedComponent.id, { name });
+  };
+
   const handleComponentDelete = (componentId: string) => {
     const updatedComponents = components.filter(comp => comp.id !== componentId);
     setComponents(updatedComponents);
@@ -111,6 +116,7 @@ const TemplateEditPage = () => {
         onStyleChange={handleStyleChange}
         onContentChange={handleContentChange}
         onCanvasComponentClick={handleCanvasComponentClick}
+        onNameChange={handleNameChange}
       />
     </div>
   );

@@ -26,6 +26,7 @@ interface PropertyPanelProps {
   onPropertyChange?: (property: string, value: number) => void;
   onStyleChange?: (property: string, value: string | number) => void;
   onContentChange?: (property: string, value: string | number) => void;
+  onNameChange?: (name: string) => void;
 }
 
 const PropertyPanel: React.FC<PropertyPanelProps> = ({
@@ -33,6 +34,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   onPropertyChange,
   onStyleChange,
   onContentChange,
+  onNameChange,
 }) => {
   if (!selectedComponent) {
     return (
@@ -49,7 +51,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
 
   const renderTypeSpecificProperties = () => {
     switch (selectedComponent.type) {
-      case 'title':
       case 'text':
         return (
           <div className="space-y-2">
@@ -85,7 +86,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             </label>
           </div>
         );
-
       case 'table':
         return (
           <div className="space-y-2">
@@ -109,7 +109,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             </label>
           </div>
         );
-
       case 'image':
         return (
           <div className="space-y-2">
@@ -124,22 +123,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             </label>
           </div>
         );
-
-      case 'qrcode':
-        return (
-          <div className="space-y-2">
-            <label className="block text-sm font-medium">
-              QR 코드 데이터
-              <input
-                type="text"
-                value={selectedComponent.content?.qrData || ''}
-                className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
-                onChange={(e) => onContentChange?.('qrData', e.target.value)}
-              />
-            </label>
-          </div>
-        );
-
       default:
         return null;
     }
@@ -147,7 +130,8 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
 
   return (
     <div className="flex-1 p-4 overflow-auto">
-      <h3 className="text-sm font-medium mb-4">속성 - {selectedComponent.name}</h3>
+      <h3 className="text-sm font-medium mb-4">속성</h3>
+
       <div className="space-y-4">
         {/* 기본 속성 */}
         <div className="space-y-2">
@@ -188,7 +172,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
             />
           </label>
         </div>
-
         {/* 컴포넌트별 속성 */}
         {renderTypeSpecificProperties()}
       </div>

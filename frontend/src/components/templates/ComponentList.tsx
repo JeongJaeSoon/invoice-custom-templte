@@ -11,12 +11,9 @@ interface ComponentListProps {
 }
 
 const AVAILABLE_COMPONENTS: ComponentItem[] = [
-  { id: 'title', name: '제목', type: 'title' },
   { id: 'text', name: '텍스트', type: 'text' },
   { id: 'table', name: '테이블', type: 'table' },
   { id: 'image', name: '이미지', type: 'image' },
-  { id: 'signature', name: '서명', type: 'signature' },
-  { id: 'qrcode', name: 'QR 코드', type: 'qrcode' },
 ];
 
 const ComponentList: React.FC<ComponentListProps> = ({ onComponentSelect }) => {

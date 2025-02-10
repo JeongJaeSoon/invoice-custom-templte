@@ -110,32 +110,19 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   };
 
   const renderComponentContent = (component: CanvasComponent) => {
-    const style: CSSProperties = {
-      fontSize: component.style?.fontSize ? `${component.style.fontSize}px` : undefined,
-      fontWeight: component.style?.fontWeight,
-      textAlign: component.style?.textAlign,
-      color: component.style?.color,
-      width: '100%',
-      height: '100%',
-      outline: 'none',
-    };
-
     switch (component.type) {
-      case 'title':
-      case 'text':
+      case 'text': {
         return (
           <div
-            style={style}
+            className="text-sm"
+            style={component.style}
             contentEditable={selectedComponent?.id === component.id}
             suppressContentEditableWarning
-            onInput={(e) => handleContentEdit(component, e)}
-            onBlur={handleBlur}
-            onDoubleClick={(e) => handleDoubleClick(component, e)}
-            className="w-full h-full"
           >
-            {component.content?.text || component.name}
+            {component.content?.text || '텍스트 입력'}
           </div>
         );
+      }
       case 'table': {
         const rows = component.content?.rows || 2;
         const columns = component.content?.columns || 2;
@@ -148,7 +135,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
                     <td
                       key={colIndex}
                       className="border border-gray-300 p-1"
-                      style={style}
+                      style={component.style}
                       contentEditable={selectedComponent?.id === component.id}
                       suppressContentEditableWarning
                     />
@@ -191,24 +178,45 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const renderComponent = (component: CanvasComponent) => {
     const style: CSSProperties = {
       position: 'absolute',
-      left: `${component.x}px`,
-      top: `${component.y}px`,
-      width: `${component.width}px`,
-      height: `${component.height}px`,
-      border: selectedComponent?.id === component.id ? '2px solid #3b82f6' : '1px dashed #ccc',
-      padding: '4px',
-      cursor: isEditing ? 'text' : 'move',
+      left: component.x,
+      top: component.y,
+      width: component.width,
+      height: component.height,
+      border: selectedComponent?.id === component.id ? '2px solid #2196f3' : '1px dashed #ccc',
+      cursor: 'pointer',
+      fontSize: component.style?.fontSize ? `${component.style.fontSize}px` : '16px',
+      fontWeight: component.style?.fontWeight || 'normal',
+      textAlign: component.style?.textAlign || 'left',
+      color: component.style?.color || '#000000',
       backgroundColor: 'white',
+      overflow: 'hidden',
     };
 
     return (
       <div
         key={component.id}
-        data-component-id={component.id}
         style={style}
         onClick={() => onComponentClick?.(component)}
+        onDoubleClick={(e) => handleDoubleClick(component, e)}
       >
         {renderComponentContent(component)}
+        {component.name && (
+          <div
+            style={{
+              position: 'absolute',
+              right: 2,
+              bottom: 2,
+              fontSize: '10px',
+              color: '#666',
+              backgroundColor: 'rgba(255, 255, 255, 0.8)',
+              padding: '1px 3px',
+              borderRadius: '2px',
+              pointerEvents: 'none',
+            }}
+          >
+            {component.name}
+          </div>
+        )}
       </div>
     );
   };
