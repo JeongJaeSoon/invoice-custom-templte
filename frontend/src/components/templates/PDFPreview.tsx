@@ -23,8 +23,8 @@ const PDFPreview: React.FC<PDFPreviewProps> = ({
   onComponentUpdate,
 }) => {
   return (
-    <div className="w-full h-full bg-gray-100 p-4 overflow-auto">
-      <div className="min-h-full">
+    <div className="w-full bg-gray-100 p-4 overflow-auto">
+      <div>
         <PDFCanvas
           components={components}
           selectedComponent={selectedComponent}

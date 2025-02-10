@@ -189,12 +189,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
     if (selectedComponent) {
       moveableRef.current?.updateRect();
     }
-  }, [
-    selectedComponent?.x,
-    selectedComponent?.y,
-    selectedComponent?.width,
-    selectedComponent?.height,
-  ]);
+  }, [selectedComponent]);
 
   return (
     <div
@@ -240,7 +235,9 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
           onResizeStart={e => {
             e.setMin([10, 10]);
             // 리사이즈 시작 시 현재 위치 저장
-            e.dragStart && e.dragStart.set([selectedComponent.x, selectedComponent.y]);
+            if (e.dragStart) {
+              e.dragStart.set([selectedComponent.x, selectedComponent.y]);
+            }
           }}
           onResize={e => {
             if (!selectedComponent) return;

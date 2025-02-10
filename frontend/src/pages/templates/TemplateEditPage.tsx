@@ -14,6 +14,7 @@ const TemplateEditPage = () => {
     const newComponent: CanvasComponent = {
       ...component,
       id: uuidv4(),
+      name: `컴포넌트_${components.length + 1}`,
       x: 0,
       y: 0,
       width: 200,
@@ -87,7 +88,7 @@ const TemplateEditPage = () => {
   };
 
   return (
-    <div className="flex h-screen">
+    <div className="flex">
       {/* 미리보기 패널 */}
       <TemplatePreviewPanel
         components={components}
