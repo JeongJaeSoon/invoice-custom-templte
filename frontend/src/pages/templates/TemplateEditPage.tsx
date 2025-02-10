@@ -19,6 +19,7 @@ const TemplateEditPage = () => {
       y: 0,
       width: 200,
       height: 100,
+      zIndex: components.length + 1,
     };
     setComponents((prev) => [...prev, newComponent]);
     setSelectedComponent(newComponent);
@@ -87,6 +88,10 @@ const TemplateEditPage = () => {
     }
   };
 
+  const handleComponentsReorder = (reorderedComponents: CanvasComponent[]) => {
+    setComponents(reorderedComponents);
+  };
+
   return (
     <div className="flex">
       {/* 미리보기 패널 */}
@@ -108,6 +113,7 @@ const TemplateEditPage = () => {
         onContentChange={handleContentChange}
         onCanvasComponentClick={handleCanvasComponentClick}
         onNameChange={handleNameChange}
+        onComponentsReorder={handleComponentsReorder}
       />
     </div>
   );

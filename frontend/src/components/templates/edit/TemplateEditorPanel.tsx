@@ -15,6 +15,7 @@ interface TemplateEditorPanelProps {
   onContentChange: (property: string, value: string | number) => void;
   onCanvasComponentClick: (component: CanvasComponent) => void;
   onNameChange: (name: string) => void;
+  onComponentsReorder: (components: CanvasComponent[]) => void;
 }
 
 const TemplateEditorPanel: React.FC<TemplateEditorPanelProps> = ({
@@ -27,40 +28,32 @@ const TemplateEditorPanel: React.FC<TemplateEditorPanelProps> = ({
   onContentChange,
   onCanvasComponentClick,
   onNameChange,
+  onComponentsReorder,
 }) => {
   return (
-    <div className="w-1/2 h-full border-l border-gray-200">
-      <div className="h-full flex flex-col">
-        {/* 상단 도구 모음 */}
-        <div className="p-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold">템플릿 편집</h2>
-        </div>
-
-        {/* 컴포넌트 목록 */}
-        <ComponentList onComponentSelect={onComponentSelect} />
-
-        {/* 추가된 컴포넌트 목록 */}
-        <ComponentListPanel
-          components={components}
-          selectedComponent={selectedComponent}
-          onComponentSelect={onCanvasComponentClick}
-          onComponentDelete={onComponentDelete}
-        />
-
-        {/* 별도의 컴포넌트 이름 편집 패널 */}
-        <ComponentNameEditor
-          selectedComponent={selectedComponent}
-          onNameChange={onNameChange}
-        />
-
-        {/* 기존 속성 편집 패널 (컴포넌트 이름 관련 UI는 제거) */}
-        <PropertyPanel
-          selectedComponent={selectedComponent}
-          onPropertyChange={onPropertyChange}
-          onStyleChange={onStyleChange}
-          onContentChange={onContentChange}
-        />
-      </div>
+    <div className="w-80 bg-white border-l border-gray-200 overflow-y-auto">
+      <ComponentList onComponentSelect={onComponentSelect} />
+      <ComponentListPanel
+        components={components}
+        selectedComponent={selectedComponent}
+        onComponentSelect={onCanvasComponentClick}
+        onComponentDelete={onComponentDelete}
+        onComponentsReorder={onComponentsReorder}
+      />
+      {selectedComponent && (
+        <>
+          <ComponentNameEditor
+            name={selectedComponent.name}
+            onNameChange={onNameChange}
+          />
+          <PropertyPanel
+            component={selectedComponent}
+            onPropertyChange={onPropertyChange}
+            onStyleChange={onStyleChange}
+            onContentChange={onContentChange}
+          />
+        </>
+      )}
     </div>
   );
 };

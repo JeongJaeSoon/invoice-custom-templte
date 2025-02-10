@@ -1,6 +1,8 @@
+import { ComponentItem } from '../components/templates/ComponentList';
+
 export type ComponentType = 'title' | 'text' | 'table' | 'image' | 'signature' | 'qrcode';
 
-export interface CanvasComponent {
+export interface CanvasComponent extends ComponentItem {
   id: string;
   name: string;
   type: ComponentType;
@@ -8,6 +10,7 @@ export interface CanvasComponent {
   y: number;
   width: number;
   height: number;
+  zIndex: number;
   style?: {
     fontSize?: number;
     fontWeight?: string;
