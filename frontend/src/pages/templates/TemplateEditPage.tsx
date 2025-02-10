@@ -1,8 +1,8 @@
 import { useState } from 'react';
-import PDFPreview from '../../components/template/PDFPreview';
-import ComponentList, { ComponentItem } from '../../components/template/ComponentList';
-import PropertyPanel from '../../components/template/PropertyPanel';
-import ComponentListPanel from '../../components/template/ComponentListPanel';
+import PDFPreview from '../../components/templates/PDFPreview';
+import ComponentList, { ComponentItem } from '../../components/templates/ComponentList';
+import PropertyPanel from '../../components/templates/PropertyPanel';
+import ComponentListPanel from '../../components/templates/ComponentListPanel';
 
 // 기본 컴포넌트 크기 설정
 const DEFAULT_COMPONENT_SIZE = {
