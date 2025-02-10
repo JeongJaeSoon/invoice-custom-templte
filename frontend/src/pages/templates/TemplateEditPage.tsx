@@ -1,63 +1,37 @@
-import { useState } from 'react';
 import { ComponentItem } from '../../components/templates/ComponentList';
 import { CanvasComponent } from '../../types/CanvasComponent';
 import TemplatePreviewPanel from '../../components/templates/edit/TemplatePreviewPanel';
 import TemplateEditorPanel from '../../components/templates/edit/TemplateEditorPanel';
-import { v4 as uuidv4 } from 'uuid';
-
+import DebugMenu from '../../components/templates/DebugMenu';
+import { useTemplateStore } from '../../store/templateStore';
 
 const TemplateEditPage = () => {
-  const [components, setComponents] = useState<CanvasComponent[]>([]);
-  const [selectedComponent, setSelectedComponent] = useState<CanvasComponent>();
+  const {
+    components,
+    selectedComponent,
+    addComponent,
+    updateComponent,
+    selectComponent,
+    deleteComponent,
+    reorderComponents,
+  } = useTemplateStore();
 
   const handleComponentSelect = (component: ComponentItem) => {
-    const newComponent: CanvasComponent = {
-      ...component,
-      id: uuidv4(),
-      name: `컴포넌트_${components.length + 1}`,
-      x: 0,
-      y: 0,
-      width: 200,
-      height: 100,
-      zIndex: components.length + 1,
-    };
-    setComponents((prev) => [...prev, newComponent]);
-    setSelectedComponent(newComponent);
+    addComponent(component);
   };
 
   const handleCanvasComponentClick = (component: CanvasComponent) => {
-    setSelectedComponent(component);
-  };
-
-  const handleComponentUpdate = (componentId: string, updates: Partial<CanvasComponent>) => {
-    const updatedComponents = components.map(comp => {
-      if (comp.id === componentId) {
-        return {
-          ...comp,
-          ...updates,
-        };
-      }
-      return comp;
-    });
-
-    const updatedComponent = updatedComponents.find(
-      comp => comp.id === componentId
-    );
-
-    setComponents(updatedComponents);
-    if (updatedComponent) {
-      setSelectedComponent(updatedComponent);
-    }
+    selectComponent(component);
   };
 
   const handlePropertyChange = (property: string, value: number) => {
     if (!selectedComponent) return;
-    handleComponentUpdate(selectedComponent.id, { [property]: value });
+    updateComponent(selectedComponent.id, { [property]: value });
   };
 
   const handleStyleChange = (property: string, value: string | number) => {
     if (!selectedComponent) return;
-    handleComponentUpdate(selectedComponent.id, {
+    updateComponent(selectedComponent.id, {
       style: {
         ...selectedComponent.style,
         [property]: value,
@@ -67,7 +41,7 @@ const TemplateEditPage = () => {
 
   const handleContentChange = (property: string, value: string | number) => {
     if (!selectedComponent) return;
-    handleComponentUpdate(selectedComponent.id, {
+    updateComponent(selectedComponent.id, {
       content: {
         ...selectedComponent.content,
         [property]: value,
@@ -77,48 +51,37 @@ const TemplateEditPage = () => {
 
   const handleNameChange = (name: string) => {
     if (!selectedComponent) return;
-    handleComponentUpdate(selectedComponent.id, { name });
-  };
-
-  const handleComponentDelete = (componentId: string) => {
-    const updatedComponents = components.filter(comp => comp.id !== componentId);
-    setComponents(updatedComponents);
-    if (selectedComponent?.id === componentId) {
-      setSelectedComponent(undefined);
-    }
-  };
-
-  const handleComponentsReorder = (reorderedComponents: CanvasComponent[]) => {
-    const updatedComponents = reorderedComponents.map((component, index) => ({
-      ...component,
-      zIndex: reorderedComponents.length - index,
-    }));
-    setComponents(updatedComponents);
+    updateComponent(selectedComponent.id, { name });
   };
 
   return (
-    <div className="flex">
-      {/* 미리보기 패널 */}
-      <TemplatePreviewPanel
-        components={components}
-        selectedComponent={selectedComponent}
-        onComponentClick={handleCanvasComponentClick}
-        onComponentUpdate={handleComponentUpdate}
-      />
+    <div className="relative w-full h-full">
+      <div className="flex w-full h-full">
+        {/* 미리보기 패널 */}
+        <TemplatePreviewPanel
+          components={components}
+          selectedComponent={selectedComponent}
+          onComponentClick={handleCanvasComponentClick}
+          onComponentUpdate={updateComponent}
+        />
 
-      {/* 편집 패널 */}
-      <TemplateEditorPanel
-        components={components}
-        selectedComponent={selectedComponent}
-        onComponentSelect={handleComponentSelect}
-        onComponentDelete={handleComponentDelete}
-        onPropertyChange={handlePropertyChange}
-        onStyleChange={handleStyleChange}
-        onContentChange={handleContentChange}
-        onCanvasComponentClick={handleCanvasComponentClick}
-        onNameChange={handleNameChange}
-        onComponentsReorder={handleComponentsReorder}
-      />
+        {/* 편집 패널 */}
+        <TemplateEditorPanel
+          components={components}
+          selectedComponent={selectedComponent}
+          onComponentSelect={handleComponentSelect}
+          onComponentDelete={deleteComponent}
+          onPropertyChange={handlePropertyChange}
+          onStyleChange={handleStyleChange}
+          onContentChange={handleContentChange}
+          onCanvasComponentClick={handleCanvasComponentClick}
+          onNameChange={handleNameChange}
+          onComponentsReorder={reorderComponents}
+        />
+      </div>
+
+      {/* 디버그 메뉴 */}
+      <DebugMenu />
     </div>
   );
 };
