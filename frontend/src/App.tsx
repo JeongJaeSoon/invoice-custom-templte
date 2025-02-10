@@ -1,11 +1,16 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { Button } from './components/ui/button';
 
 function App() {
   return (
-    <>
+    <div>
       <h1 className="text-3xl font-bold underline">
         Invoice Custom Template
       </h1>
+      <div>
+      <Button>Click me</Button>
+
+      </div>
 
     <Router>
       <Routes>
@@ -22,7 +27,7 @@ function App() {
         <Route path="/invoices/:id/download" element={<div>PDF 다운로드 페이지 (추후 구현)</div>} />
       </Routes>
     </Router>
-    </>
+    </div>
   );
 }
 
