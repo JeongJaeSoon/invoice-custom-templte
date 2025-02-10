@@ -1,6 +1,5 @@
-import React, { CSSProperties, useRef, useState } from 'react';
+import React, { CSSProperties, useRef, useState, useCallback } from 'react';
 import { ComponentItem } from './ComponentList';
-import Moveable, { OnDragStart, OnDrag, OnResize } from 'react-moveable';
 
 // A4 사이즈 (mm 단위)
 const A4_WIDTH_MM = 210;
@@ -12,9 +11,6 @@ const MM_TO_PX = 3.7795275591;
 export type ComponentType = 'title' | 'text' | 'table' | 'image' | 'signature' | 'qrcode';
 
 export interface CanvasComponent extends ComponentItem {
-  id: string; // ComponentItem에 id가 없을 경우를 대비
-  name: string;
-  type: ComponentType;
   x: number;
   y: number;
   width: number;
@@ -23,7 +19,7 @@ export interface CanvasComponent extends ComponentItem {
     fontSize?: number;
     fontWeight?: string;
     textAlign?: 'left' | 'center' | 'right';
-  color?: string;
+    color?: string;
   };
   content?: {
     text?: string;
@@ -51,43 +47,58 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const canvasHeight = A4_HEIGHT_MM * MM_TO_PX;
   const containerRef = useRef<HTMLDivElement>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [dragStart, setDragStart] = useState<{ x: number; y: number } | null>(null);
+  const [isDragging, setIsDragging] = useState<boolean>(false);
+  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
-  const handleDragStart = (e: OnDragStart): void => {
-    const htmlTarget = e.target as HTMLElement;
-    const componentId = htmlTarget.getAttribute('data-component-id');
-    const component = components.find((c) => c.id === componentId);
-    if (component) {
-      setDragStart({ x: component.x, y: component.y });
+  const handleMouseDown = useCallback((e: React.MouseEvent, component: CanvasComponent) => {
+    if (isEditing) return;
+    
+    const rect = (e.target as HTMLElement).getBoundingClientRect();
+    setDragOffset({
+      x: e.clientX - rect.left,
+      y: e.clientY - rect.top
+    });
+    
+    setIsDragging(true);
+    onComponentClick?.(component);
+    
+    e.preventDefault();
+    e.stopPropagation();
+  }, [isEditing, onComponentClick]);
+
+  const handleMouseMove = useCallback((e: MouseEvent) => {
+    if (!isDragging || !selectedComponent || !containerRef.current || isEditing) return;
+
+    const containerRect = containerRef.current.getBoundingClientRect();
+    const newX = e.clientX - containerRect.left - dragOffset.x;
+    const newY = e.clientY - containerRect.top - dragOffset.y;
+
+    // 캔버스 경계 내로 제한
+    const boundedX = Math.max(0, Math.min(newX, canvasWidth - selectedComponent.width));
+    const boundedY = Math.max(0, Math.min(newY, canvasHeight - selectedComponent.height));
+
+    onComponentUpdate?.(selectedComponent.id, {
+      x: boundedX,
+      y: boundedY
+    });
+  }, [isDragging, selectedComponent, dragOffset, canvasWidth, canvasHeight, isEditing, onComponentUpdate]);
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  // 마우스 이벤트 리스너 등록
+  React.useEffect(() => {
+    if (isDragging) {
+      window.addEventListener('mousemove', handleMouseMove);
+      window.addEventListener('mouseup', handleMouseUp);
     }
-  };
 
-  const handleDrag = (e: OnDrag): void => {
-    const htmlTarget = e.target as HTMLElement;
-    const componentId = htmlTarget.getAttribute('data-component-id');
-    if (!componentId || !onComponentUpdate || !dragStart) return;
-
-    const [deltaX, deltaY] = e.delta;
-    onComponentUpdate(componentId, {
-      x: dragStart.x + deltaX,
-      y: dragStart.y + deltaY,
-    });
-  };
-
-  const handleDragEnd = (): void => {
-    setDragStart(null);
-  };
-
-  const handleResize = (e: OnResize): void => {
-    const htmlTarget = e.target as HTMLElement;
-    const componentId = htmlTarget.getAttribute('data-component-id');
-    if (!componentId || !onComponentUpdate) return;
-
-    onComponentUpdate(componentId, {
-      width: e.width,
-      height: e.height,
-    });
-  };
+    return () => {
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleDoubleClick = (component: CanvasComponent, e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -97,6 +108,8 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
 
   const handleContentEdit = (component: CanvasComponent, e: React.FormEvent<HTMLDivElement>): void => {
     const text = (e.target as HTMLDivElement).innerText;
+    if (!component.content) return;
+    
     onComponentUpdate?.(component.id, {
       content: {
         ...component.content,
@@ -105,120 +118,114 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
     });
   };
 
-  const handleBlur = (): void => {
-    setIsEditing(false);
-  };
-
   const renderComponentContent = (component: CanvasComponent) => {
     switch (component.type) {
-      case 'text': {
+      case 'text':
+      case 'title':
         return (
           <div
-            className="text-sm"
-            style={component.style}
-            contentEditable={selectedComponent?.id === component.id}
+            contentEditable={isEditing && selectedComponent?.id === component.id}
+            onBlur={() => setIsEditing(false)}
+            onInput={(e) => handleContentEdit(component, e)}
             suppressContentEditableWarning
           >
-            {component.content?.text || '텍스트 입력'}
+            {component.content?.text || '텍스트를 입력하세요'}
           </div>
         );
-      }
-      case 'table': {
-        const rows = component.content?.rows || 2;
-        const columns = component.content?.columns || 2;
-        return (
-          <table className="w-full h-full border-collapse">
-            <tbody>
-              {Array.from({ length: rows }).map((_, rowIndex) => (
-                <tr key={rowIndex}>
-                  {Array.from({ length: columns }).map((_, colIndex) => (
-                    <td
-                      key={colIndex}
-                      className="border border-gray-300 p-1"
-                      style={component.style}
-                      contentEditable={selectedComponent?.id === component.id}
-                      suppressContentEditableWarning
-                    />
-                  ))}
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        );
-      }
+      case 'table':
+        return <div>테이블</div>;
       case 'image':
         return component.content?.imageUrl ? (
           <img
             src={component.content.imageUrl}
             alt="이미지"
-            className="w-full h-full object-contain"
+            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
           />
         ) : (
-          <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300">
-            이미지를 추가하세요
-          </div>
+          <div>이미지</div>
         );
       case 'signature':
-        return (
-          <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300">
-            서명
-          </div>
-        );
+        return <div>서명</div>;
       case 'qrcode':
-        return (
-          <div className="w-full h-full flex items-center justify-center border-2 border-dashed border-gray-300">
-            QR 코드
-          </div>
-        );
+        return <div>QR 코드</div>;
       default:
-        return <div className="text-sm">{component.name}</div>;
+        return null;
     }
   };
 
   const renderComponent = (component: CanvasComponent) => {
+    const isSelected = selectedComponent?.id === component.id;
+    const isCurrentlyDragging = isDragging && isSelected;
+
     const style: CSSProperties = {
       position: 'absolute',
       left: component.x,
       top: component.y,
       width: component.width,
       height: component.height,
-      border: selectedComponent?.id === component.id ? '2px solid #2196f3' : '1px dashed #ccc',
-      cursor: 'pointer',
+      border: isSelected ? '2px solid #2196f3' : '1px dashed #ccc',
+      cursor: isCurrentlyDragging ? 'grabbing' : 'grab',
       fontSize: component.style?.fontSize ? `${component.style.fontSize}px` : '16px',
       fontWeight: component.style?.fontWeight || 'normal',
       textAlign: component.style?.textAlign || 'left',
       color: component.style?.color || '#000000',
-      backgroundColor: 'white',
+      backgroundColor: isSelected ? 'rgba(33, 150, 243, 0.05)' : 'white',
       overflow: 'hidden',
+      userSelect: 'none',
+      transition: 'background-color 0.2s, border 0.2s',
+      boxShadow: isSelected ? '0 0 8px rgba(33, 150, 243, 0.4)' : 'none',
     };
 
     return (
       <div
         key={component.id}
+        data-component-id={component.id}
         style={style}
-        onClick={() => onComponentClick?.(component)}
+        onMouseDown={(e) => handleMouseDown(e, component)}
         onDoubleClick={(e) => handleDoubleClick(component, e)}
       >
         {renderComponentContent(component)}
-        {component.name && (
-          <div
-            style={{
-              position: 'absolute',
-              right: 2,
-              bottom: 2,
-              fontSize: '10px',
-              color: '#666',
-              backgroundColor: 'rgba(255, 255, 255, 0.8)',
-              padding: '1px 3px',
-              borderRadius: '2px',
-              pointerEvents: 'none',
-            }}
-          >
-            {component.name}
-          </div>
-        )}
+        <div
+          style={{
+            position: 'absolute',
+            right: 2,
+            bottom: 2,
+            fontSize: '10px',
+            color: '#666',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '2px 4px',
+            borderRadius: '3px',
+            pointerEvents: 'none',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '4px',
+          }}
+        >
+          <span>{getComponentIcon(component.type)}</span>
+          <span>{component.name}</span>
+          <span style={{ opacity: 0.7 }}>#{component.id.slice(-4)}</span>
+        </div>
       </div>
     );
+  };
+
+  const getComponentIcon = (type: ComponentType): string => {
+    switch (type) {
+      case 'title':
+        return '📌';
+      case 'text':
+        return '📝';
+      case 'table':
+        return '📊';
+      case 'image':
+        return '🖼️';
+      case 'signature':
+        return '✍️';
+      case 'qrcode':
+        return '📱';
+      default:
+        return '📄';
+    }
   };
 
   return (
@@ -232,28 +239,6 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
       }}
     >
       {components.map(renderComponent)}
-      {selectedComponent && containerRef.current && !isEditing && (
-        <Moveable
-          target={`[data-component-id="${selectedComponent.id}"]`}
-          container={containerRef.current}
-          draggable={true}
-          resizable={true}
-          snappable={true}
-          origin={false}
-          dragTarget={isEditing ? undefined : `[data-component-id="${selectedComponent.id}"]`}
-          bounds={{
-            left: 0,
-            top: 0,
-            right: 0,
-            bottom: 0,
-            position: 'css',
-          }}
-          onDragStart={handleDragStart}
-          onDrag={handleDrag}
-          onDragEnd={handleDragEnd}
-          onResize={handleResize}
-        />
-      )}
     </div>
   );
 };
