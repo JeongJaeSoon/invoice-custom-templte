@@ -1,35 +1,23 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <Router>
+      <Routes>
+        {/* 템플릿 관련 URL */}
+        <Route path="/templates" element={<div>템플릿 목록 페이지 (추후 구현)</div>} />
+        <Route path="/templates/:id/edit" element={<div>템플릿 편집 페이지 (추후 구현)</div>} />
+        <Route path="/templates/:id/preview" element={<div>PDF 미리보기 페이지 (추후 구현)</div>} />
+
+        {/* 청구서 관련 URL */}
+        <Route path="/invoices" element={<div>청구서 목록 페이지 (추후 구현)</div>} />
+        <Route path="/invoices/new" element={<div>새 청구서 작성 페이지 (추후 구현)</div>} />
+        <Route path="/invoices/:id/edit" element={<div>청구서 수정 페이지 (추후 구현)</div>} />
+        <Route path="/invoices/:id/preview" element={<div>PDF 미리보기 페이지 (추후 구현)</div>} />
+        <Route path="/invoices/:id/download" element={<div>PDF 다운로드 페이지 (추후 구현)</div>} />
+      </Routes>
+    </Router>
+  );
 }
 
-export default App
+export default App;
