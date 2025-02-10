@@ -26,7 +26,6 @@ interface PropertyPanelProps {
   onPropertyChange?: (property: string, value: number) => void;
   onStyleChange?: (property: string, value: string | number) => void;
   onContentChange?: (property: string, value: string | number) => void;
-  onNameChange?: (name: string) => void;
 }
 
 const PropertyPanel: React.FC<PropertyPanelProps> = ({
@@ -34,7 +33,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
   onPropertyChange,
   onStyleChange,
   onContentChange,
-  onNameChange,
 }) => {
   if (!selectedComponent) {
     return (
