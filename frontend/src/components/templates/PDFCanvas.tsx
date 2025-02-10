@@ -1,5 +1,6 @@
-import React, { CSSProperties, useRef, useState, useCallback } from 'react';
+import React, { CSSProperties, useRef, useState, useCallback, useEffect } from 'react';
 import { ComponentItem } from './ComponentList';
+import Moveable from 'react-moveable';
 
 // A4 사이즈 (mm 단위)
 const A4_WIDTH_MM = 210;
@@ -46,59 +47,15 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const canvasWidth = A4_WIDTH_MM * MM_TO_PX;
   const canvasHeight = A4_HEIGHT_MM * MM_TO_PX;
   const containerRef = useRef<HTMLDivElement>(null);
+  const moveableRef = useRef<Moveable>(null);
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const [isDragging, setIsDragging] = useState<boolean>(false);
-  const [dragOffset, setDragOffset] = useState<{ x: number; y: number }>({ x: 0, y: 0 });
 
   const handleMouseDown = useCallback((e: React.MouseEvent, component: CanvasComponent) => {
     if (isEditing) return;
-    
-    const rect = (e.target as HTMLElement).getBoundingClientRect();
-    setDragOffset({
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
-    });
-    
-    setIsDragging(true);
     onComponentClick?.(component);
-    
     e.preventDefault();
     e.stopPropagation();
   }, [isEditing, onComponentClick]);
-
-  const handleMouseMove = useCallback((e: MouseEvent) => {
-    if (!isDragging || !selectedComponent || !containerRef.current || isEditing) return;
-
-    const containerRect = containerRef.current.getBoundingClientRect();
-    const newX = e.clientX - containerRect.left - dragOffset.x;
-    const newY = e.clientY - containerRect.top - dragOffset.y;
-
-    // 캔버스 경계 내로 제한
-    const boundedX = Math.max(0, Math.min(newX, canvasWidth - selectedComponent.width));
-    const boundedY = Math.max(0, Math.min(newY, canvasHeight - selectedComponent.height));
-
-    onComponentUpdate?.(selectedComponent.id, {
-      x: boundedX,
-      y: boundedY
-    });
-  }, [isDragging, selectedComponent, dragOffset, canvasWidth, canvasHeight, isEditing, onComponentUpdate]);
-
-  const handleMouseUp = useCallback(() => {
-    setIsDragging(false);
-  }, []);
-
-  // 마우스 이벤트 리스너 등록
-  React.useEffect(() => {
-    if (isDragging) {
-      window.addEventListener('mousemove', handleMouseMove);
-      window.addEventListener('mouseup', handleMouseUp);
-    }
-
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-    };
-  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleDoubleClick = (component: CanvasComponent, e: React.MouseEvent): void => {
     e.stopPropagation();
@@ -109,7 +66,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const handleContentEdit = (component: CanvasComponent, e: React.FormEvent<HTMLDivElement>): void => {
     const text = (e.target as HTMLDivElement).innerText;
     if (!component.content) return;
-    
+
     onComponentUpdate?.(component.id, {
       content: {
         ...component.content,
@@ -155,7 +112,6 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
 
   const renderComponent = (component: CanvasComponent) => {
     const isSelected = selectedComponent?.id === component.id;
-    const isCurrentlyDragging = isDragging && isSelected;
 
     const style: CSSProperties = {
       position: 'absolute',
@@ -164,7 +120,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
       width: component.width,
       height: component.height,
       border: isSelected ? '2px solid #2196f3' : '1px dashed #ccc',
-      cursor: isCurrentlyDragging ? 'grabbing' : 'grab',
+      cursor: isSelected ? 'grab' : 'default',
       fontSize: component.style?.fontSize ? `${component.style.fontSize}px` : '16px',
       fontWeight: component.style?.fontWeight || 'normal',
       textAlign: component.style?.textAlign || 'left',
@@ -228,6 +184,18 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
     }
   };
 
+  // 컴포넌트의 좌표나 크기가 업데이트 될 때 Moveable UI를 업데이트
+  useEffect(() => {
+    if (selectedComponent) {
+      moveableRef.current?.updateRect();
+    }
+  }, [
+    selectedComponent?.x,
+    selectedComponent?.y,
+    selectedComponent?.width,
+    selectedComponent?.height,
+  ]);
+
   return (
     <div
       ref={containerRef}
@@ -239,6 +207,98 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
       }}
     >
       {components.map(renderComponent)}
+      {selectedComponent && (
+        <Moveable
+          ref={moveableRef}
+          target={`[data-component-id="${selectedComponent.id}"]`}
+          container={containerRef.current}
+          draggable={true}
+          resizable={true}
+          scalable={false}
+          keepRatio={false}
+          snappable={true}
+          bounds={{
+            left: 0,
+            top: 0,
+            right: canvasWidth,
+            bottom: canvasHeight
+          }}
+          throttleResize={1}
+          throttleDrag={1}
+          renderDirections={["nw", "n", "ne", "w", "e", "sw", "s", "se"]}
+          edge={true}
+          zoom={1}
+          origin={false}
+          padding={{ left: 0, top: 0, right: 0, bottom: 0 }}
+          elementGuidelines={components
+            .filter(comp => comp.id !== selectedComponent.id)
+            .map(comp => `[data-component-id="${comp.id}"]`)}
+          snapThreshold={5}
+          isDisplaySnapDigit={true}
+          verticalGuidelines={[0, canvasWidth / 2, canvasWidth]}
+          horizontalGuidelines={[0, canvasHeight / 2, canvasHeight]}
+          onResizeStart={e => {
+            e.setMin([10, 10]);
+            // 리사이즈 시작 시 현재 위치 저장
+            e.dragStart && e.dragStart.set([selectedComponent.x, selectedComponent.y]);
+          }}
+          onResize={e => {
+            if (!selectedComponent) return;
+
+            const newWidth = e.width;
+            const newHeight = e.height;
+            const newX = e.drag.beforeTranslate[0];
+            const newY = e.drag.beforeTranslate[1];
+
+            // 경계 체크
+            const boundedX = Math.max(0, Math.min(newX, canvasWidth - newWidth));
+            const boundedY = Math.max(0, Math.min(newY, canvasHeight - newHeight));
+
+            e.target.style.width = `${newWidth}px`;
+            e.target.style.height = `${newHeight}px`;
+            e.target.style.left = `${boundedX}px`;
+            e.target.style.top = `${boundedY}px`;
+            e.target.style.transform = 'none';
+
+            onComponentUpdate?.(selectedComponent.id, {
+              width: newWidth,
+              height: newHeight,
+              x: boundedX,
+              y: boundedY
+            });
+          }}
+          onDragStart={e => {
+            // 드래그 시작 시 현재 위치 저장
+            e.set([selectedComponent.x, selectedComponent.y]);
+          }}
+          onDrag={e => {
+            if (!selectedComponent) return;
+
+            // 드래그 중인 위치 계산
+            const newX = e.beforeTranslate[0];
+            const newY = e.beforeTranslate[1];
+
+            // 경계 체크
+            const boundedX = Math.max(0, Math.min(newX, canvasWidth - selectedComponent.width));
+            const boundedY = Math.max(0, Math.min(newY, canvasHeight - selectedComponent.height));
+
+            // 스타일 업데이트
+            e.target.style.left = `${boundedX}px`;
+            e.target.style.top = `${boundedY}px`;
+            e.target.style.transform = 'none';
+
+            // 상태 업데이트
+            onComponentUpdate?.(selectedComponent.id, {
+              x: boundedX,
+              y: boundedY
+            });
+          }}
+          onDragEnd={() => {
+            // 드래그 종료 시 Moveable UI 업데이트
+            moveableRef.current?.updateRect();
+          }}
+        />
+      )}
     </div>
   );
 };

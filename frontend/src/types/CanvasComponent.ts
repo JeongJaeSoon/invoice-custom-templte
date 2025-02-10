@@ -1,6 +1,9 @@
-import { ComponentItem } from '../components/templates/ComponentList';
+export type ComponentType = 'title' | 'text' | 'table' | 'image' | 'signature' | 'qrcode';
 
-export interface CanvasComponent extends ComponentItem {
+export interface CanvasComponent {
+  id: string;
+  name: string;
+  type: ComponentType;
   x: number;
   y: number;
   width: number;

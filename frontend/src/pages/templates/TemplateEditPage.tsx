@@ -3,41 +3,23 @@ import { ComponentItem } from '../../components/templates/ComponentList';
 import { CanvasComponent } from '../../types/CanvasComponent';
 import TemplatePreviewPanel from '../../components/templates/edit/TemplatePreviewPanel';
 import TemplateEditorPanel from '../../components/templates/edit/TemplateEditorPanel';
+import { v4 as uuidv4 } from 'uuid';
 
-// 기본 컴포넌트 크기 설정
-const DEFAULT_COMPONENT_SIZE = {
-  width: 200,
-  height: 50,
-};
-
-// 고유 ID 생성 함수
-const generateUniqueId = () => {
-  return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
-};
 
 const TemplateEditPage = () => {
   const [components, setComponents] = useState<CanvasComponent[]>([]);
   const [selectedComponent, setSelectedComponent] = useState<CanvasComponent>();
 
   const handleComponentSelect = (component: ComponentItem) => {
-    // 새 컴포넌트를 캔버스 중앙에 추가
     const newComponent: CanvasComponent = {
       ...component,
-      id: generateUniqueId(), // 고유 ID 생성
-      x: 100,
-      y: 100,
-      width: DEFAULT_COMPONENT_SIZE.width,
-      height: DEFAULT_COMPONENT_SIZE.height,
-      style: {
-        fontSize: 16,
-        textAlign: 'left',
-      },
-      content: {
-        text: `새로운 ${component.name}`, // 기본 텍스트에 컴포넌트 이름 추가
-      },
+      id: uuidv4(),
+      x: 0,
+      y: 0,
+      width: 200,
+      height: 100,
     };
-
-    setComponents([...components, newComponent]);
+    setComponents((prev) => [...prev, newComponent]);
     setSelectedComponent(newComponent);
   };
 
