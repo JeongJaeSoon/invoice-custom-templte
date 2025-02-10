@@ -29,8 +29,16 @@ const ComponentListPanel: React.FC<ComponentListPanelProps> = ({
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
+      // 컴포넌트 리스트 패널 영역 밖을 클릭했을 때만 처리
       if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        onComponentSelect(null as unknown as CanvasComponent);
+        // 클릭된 요소가 PDF 미리보기 영역 내부이거나 다른 UI 요소인 경우에도 선택 해제
+        const isPropertyPanel = (event.target as Element)?.closest('.property-panel');
+        const isComponentList = (event.target as Element)?.closest('.component-list');
+
+        // PropertyPanel이나 ComponentList 영역이 아닌 곳을 클릭했을 때만 선택 해제
+        if (!isPropertyPanel && !isComponentList) {
+          onComponentSelect(null as unknown as CanvasComponent);
+        }
       }
     };
 

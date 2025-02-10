@@ -96,10 +96,20 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
           <img
             src={component.content.imageUrl}
             alt="이미지"
-            style={{ width: '100%', height: '100%', objectFit: 'contain' }}
+            style={{
+              width: '100%',
+              height: '100%',
+              objectFit: 'contain',
+              backgroundColor: 'transparent'
+            }}
           />
         ) : (
-          <div>이미지</div>
+          <div className="w-full h-full flex items-center justify-center bg-gray-100 border-2 border-dashed border-gray-300 rounded-lg">
+            <div className="text-center">
+              <div className="text-gray-400 text-3xl mb-2">🖼️</div>
+              <div className="text-sm text-gray-500">이미지를 추가해주세요</div>
+            </div>
+          </div>
         );
       case 'signature':
         return <div>서명</div>;
