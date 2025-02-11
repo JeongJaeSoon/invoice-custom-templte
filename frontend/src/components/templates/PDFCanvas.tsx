@@ -66,16 +66,30 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   };
 
   const renderComponentContent = (component: CanvasComponent) => {
+    const style: CSSProperties = {
+      whiteSpace: 'pre-wrap',
+      fontSize: component.style?.fontSize ? `${component.style.fontSize}px` : undefined,
+      fontWeight: component.style?.fontWeight,
+      textAlign: component.style?.textAlign,
+      color: component.style?.color,
+      width: '100%',
+      height: '100%',
+      outline: 'none',
+    };
+
     switch (component.type) {
       case 'text':
         return (
           <div
-            contentEditable={isEditing && selectedComponent?.id === component.id}
-            onBlur={() => setIsEditing(false)}
-            onInput={(e) => handleContentEdit(component, e)}
+            style={style}
+            contentEditable={selectedComponent?.id === component.id}
             suppressContentEditableWarning
+            onInput={(e) => handleContentEdit(component, e)}
+            onBlur={() => setIsEditing(false)}
+            onDoubleClick={(e) => handleDoubleClick(component, e)}
+            className="w-full h-full"
           >
-            {component.content?.text || '텍스트를 입력하세요'}
+            {component.content?.text || component.name}
           </div>
         );
       case 'table':
