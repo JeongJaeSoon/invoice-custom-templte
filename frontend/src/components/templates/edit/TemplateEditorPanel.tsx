@@ -12,7 +12,7 @@ interface TemplateEditorPanelProps {
   onComponentDelete: (componentId: string) => void;
   onPropertyChange: (property: string, value: number) => void;
   onStyleChange: (property: string, value: string | number) => void;
-  onContentChange: (property: string, value: string | number) => void;
+  onContentChange: (property: string, value: string | number | Partial<CanvasComponent['content']>) => void;
   onCanvasComponentClick: (component: CanvasComponent) => void;
   onNameChange: (name: string) => void;
   onComponentsReorder: (components: CanvasComponent[]) => void;

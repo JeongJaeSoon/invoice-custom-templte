@@ -5,7 +5,7 @@ interface PropertyPanelProps {
   component: CanvasComponent;
   onPropertyChange: (property: string, value: number) => void;
   onStyleChange: (property: string, value: string | number) => void;
-  onContentChange: (property: string, value: string | number) => void;
+  onContentChange: (property: string, value: string | number | Partial<CanvasComponent['content']>) => void;
 }
 
 const PropertyPanel: React.FC<PropertyPanelProps> = ({
@@ -120,7 +120,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     </select>
                   </div>
                 </div>
-                
+
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">정렬</label>
@@ -177,9 +177,16 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     type="number"
                     value={component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS}
                     onChange={(e) => {
-                      const newRows = parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS;
-                      onContentChange('rows', newRows);
-                      onContentChange('rowSizes', INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(newRows));
+                      const newRows = Math.max(1, parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS);
+                      const defaultRowSizes = INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(newRows);
+
+                      // 모든 content 변경사항을 한 번에 업데이트
+                      const updatedContent: Partial<CanvasComponent['content']> = {
+                        ...component.content,
+                        rows: newRows,
+                        rowSizes: defaultRowSizes,
+                      };
+                      onContentChange('', updatedContent);
                     }}
                     min={1}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"
@@ -191,9 +198,16 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     type="number"
                     value={component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS}
                     onChange={(e) => {
-                      const newColumns = parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS;
-                      onContentChange('columns', newColumns);
-                      onContentChange('columnSizes', INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(newColumns));
+                      const newColumns = Math.max(1, parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS);
+                      const defaultColumnSizes = INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(newColumns);
+
+                      // 모든 content 변경사항을 한 번에 업데이트
+                      const updatedContent: Partial<CanvasComponent['content']> = {
+                        ...component.content,
+                        columns: newColumns,
+                        columnSizes: defaultColumnSizes,
+                      };
+                      onContentChange('', updatedContent);
                     }}
                     min={1}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"

@@ -1,4 +1,4 @@
-  import { CanvasComponent, ComponentItem } from '../../types/CanvasComponent';
+import { CanvasComponent, ComponentItem } from '../../types/CanvasComponent';
 import TemplatePreviewPanel from '../../components/templates/edit/TemplatePreviewPanel';
 import TemplateEditorPanel from '../../components/templates/edit/TemplateEditorPanel';
 import DebugMenu from '../../components/templates/DebugMenu';
@@ -38,13 +38,19 @@ const TemplateEditPage = () => {
     });
   };
 
-  const handleContentChange = (property: string, value: string | number) => {
+  const handleContentChange = (property: string, value: string | number | Partial<CanvasComponent['content']>) => {
     if (!selectedComponent) return;
+
+    // property가 비어있으면 value를 전체 content로 사용
+    const updatedContent = property === ''
+      ? value as CanvasComponent['content']
+      : {
+          ...selectedComponent.content,
+          [property]: value,
+        };
+
     updateComponent(selectedComponent.id, {
-      content: {
-        ...selectedComponent.content,
-        [property]: value,
-      },
+      content: updatedContent,
     });
   };
 
