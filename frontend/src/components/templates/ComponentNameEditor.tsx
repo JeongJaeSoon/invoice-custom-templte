@@ -18,6 +18,7 @@ const ComponentNameEditor: React.FC<ComponentNameEditorProps> = ({
         type="text"
         value={name}
         onChange={(e) => onNameChange(e.target.value)}
+        onClick={(e) => e.stopPropagation()}
         className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
       />
     </div>

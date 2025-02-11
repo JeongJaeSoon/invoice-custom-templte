@@ -19,13 +19,13 @@ const PDFPreview: React.FC<PDFPreviewProps> = ({
 }) => {
   return (
     <div className="w-full h-full bg-gray-100 overflow-auto">
-        <PDFCanvas
-          components={components}
-          selectedComponent={selectedComponent}
-          onComponentClick={onComponentClick}
-          onComponentUpdate={onComponentUpdate}
-          onTableCellSelect={onTableCellSelect}
-        />
+      <PDFCanvas
+        components={components}
+        selectedComponent={selectedComponent}
+        onComponentClick={onComponentClick}
+        onComponentUpdate={onComponentUpdate}
+        onTableCellSelect={onTableCellSelect}
+      />
     </div>
   );
 };

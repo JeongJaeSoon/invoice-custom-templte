@@ -31,7 +31,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
     }
 
     const styles = selectedTableCells.map(cellId => component.content?.tableCellStyles?.[cellId] || {});
-    const commonStyle: Partial<TableCellStyle> = {};
+    const commonStyle: Record<keyof TableCellStyle, string | number | undefined> = {} as Record<keyof TableCellStyle, string | number | undefined>;
 
     (Object.keys(INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE) as Array<keyof TableCellStyle>).forEach(key => {
       const firstValue = styles[0]?.[key];
@@ -40,7 +40,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
       }
     });
 
-    return commonStyle;
+    return commonStyle as Partial<TableCellStyle>;
   };
 
   return (
@@ -395,7 +395,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                       <input
                         type="number"
                         value={getCommonCellStyle().fontSize || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.fontSize}
-                        onChange={(e) => handleTableCellStyleChange('fontSize', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.fontSize)}
+                        onChange={(e) => handleTableCellStyleChange('fontSize', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.fontSize as number)}
                         className="w-full px-2 py-1 border border-gray-300 rounded-md"
                       />
                     </div>
@@ -428,7 +428,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                       <label className="block text-xs text-gray-500">정렬</label>
                       <select
                         value={getCommonCellStyle().textAlign || 'left'}
-                        onChange={(e) => handleTableCellStyleChange('textAlign', e.target.value as TableCellStyle['textAlign'])}
+                        onChange={(e) => handleTableCellStyleChange('textAlign', e.target.value)}
                         className="w-full px-2 py-1 border border-gray-300 rounded-md"
                       >
                         <option value="left">왼쪽</option>
