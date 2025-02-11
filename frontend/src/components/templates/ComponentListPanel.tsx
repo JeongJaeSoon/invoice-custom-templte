@@ -122,24 +122,6 @@ const ComponentListPanel: React.FC<ComponentListPanelProps> = ({
 }) => {
   const containerRef = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        const isPropertyPanel = (event.target as Element)?.closest('.property-panel');
-        const isComponentList = (event.target as Element)?.closest('.component-list');
-
-        if (!isPropertyPanel && !isComponentList) {
-          onComponentSelect(null as unknown as CanvasComponent);
-        }
-      }
-    };
-
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, [onComponentSelect]);
-
   const moveComponent = (dragIndex: number, hoverIndex: number) => {
     const dragComponent = components[dragIndex];
     const newComponents = [...components];
