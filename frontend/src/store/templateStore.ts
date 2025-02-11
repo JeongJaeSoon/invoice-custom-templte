@@ -19,10 +19,26 @@ export const useTemplateStore = create<TemplateState>((set, get) => ({
   selectedComponent: undefined,
 
   addComponent: (component: ComponentItem) => {
+    const getComponentTypeName = (type: string) => {
+      switch (type) {
+        case 'text':
+          return '텍스트';
+        case 'table':
+          return '테이블';
+        case 'image':
+          return '이미지';
+        default:
+          return '컴포넌트';
+      }
+    };
+
+    const typeName = getComponentTypeName(component.type);
+    const typeCount = get().components.filter(c => c.type === component.type).length + 1;
+
     const newComponent: CanvasComponent = {
       ...component,
       id: uuidv4(),
-      name: `컴포넌트_${get().components.length + 1}`,
+      name: `${typeName}_${typeCount}`,
       x: 0,
       y: 0,
       width: 200,
