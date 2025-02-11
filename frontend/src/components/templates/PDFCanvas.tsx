@@ -73,11 +73,12 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
             data={component.content?.tableData || {}}
             rows={component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS}
             columns={component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS}
+            columnSizes={component.content?.columnSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS)}
+            rowSizes={component.content?.rowSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS)}
             onDataChange={(newData: { [key: string]: string }) => {
               onComponentUpdate?.(component.id, {
                 content: {
-                  rows: component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS,
-                  columns: component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS,
+                  ...component.content,
                   tableData: newData,
                 },
               });

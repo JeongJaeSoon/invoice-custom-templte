@@ -176,9 +176,11 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <input
                     type="number"
                     value={component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS}
-                    onChange={(e) =>
-                      onContentChange('rows', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS)
-                    }
+                    onChange={(e) => {
+                      const newRows = parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS;
+                      onContentChange('rows', newRows);
+                      onContentChange('rowSizes', INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(newRows));
+                    }}
                     min={1}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"
                   />
@@ -188,10 +190,37 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <input
                     type="number"
                     value={component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS}
-                    onChange={(e) =>
-                      onContentChange('columns', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS)
-                    }
+                    onChange={(e) => {
+                      const newColumns = parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS;
+                      onContentChange('columns', newColumns);
+                      onContentChange('columnSizes', INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(newColumns));
+                    }}
                     min={1}
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md"
+                  />
+                </div>
+              </div>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                크기 비율 설정
+              </label>
+              <div className="space-y-2">
+                <div>
+                  <label className="block text-xs text-gray-500">열 크기 비율 (%, 쉼표로 구분)</label>
+                  <input
+                    type="text"
+                    value={component.content?.columnSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS)}
+                    onChange={(e) => onContentChange('columnSizes', e.target.value)}
+                    className="w-full px-2 py-1 border border-gray-300 rounded-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs text-gray-500">행 크기 비율 (%, 쉼표로 구분)</label>
+                  <input
+                    type="text"
+                    value={component.content?.rowSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS)}
+                    onChange={(e) => onContentChange('rowSizes', e.target.value)}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"
                   />
                 </div>

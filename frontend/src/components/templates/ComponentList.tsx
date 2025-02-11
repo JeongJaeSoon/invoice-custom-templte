@@ -32,6 +32,8 @@ const ComponentList: React.FC<ComponentListProps> = ({ onComponentSelect }) => {
               rows: INITIAL_COMPONENT_SETTINGS.TABLE.ROWS,
               columns: INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS,
               tableData: {},
+              columnSizes: INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS),
+              rowSizes: INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(INITIAL_COMPONENT_SETTINGS.TABLE.ROWS),
             },
             x: 0,
             y: 0,

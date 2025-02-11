@@ -1,4 +1,3 @@
-
 // 컴포넌트 타입 정의
 export type ComponentType = 'text' | 'table' | 'image';
 
@@ -28,6 +27,8 @@ export interface CanvasComponent extends ComponentItem {
     columns?: number;
     tableData?: { [key: string]: string };
     imageUrl?: string;
+    columnSizes?: string;
+    rowSizes?: string;
   };
 }
 
@@ -39,6 +40,8 @@ export const INITIAL_COMPONENT_SETTINGS = {
     COLUMNS: 5,
     WIDTH: 735,
     HEIGHT: 435,
+    getDefaultColumnSizes: (columns: number) => Array(columns).fill(100/columns).join(','),
+    getDefaultRowSizes: (rows: number) => Array(rows).fill(100/rows).join(','),
   },
   // 텍스트 설정
   TEXT: {
