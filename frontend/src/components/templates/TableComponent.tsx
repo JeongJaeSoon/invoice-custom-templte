@@ -23,12 +23,12 @@ export const TableComponent: React.FC<TableComponentProps> = ({
   // 컬럼 사이즈 계산
   const getColumnSizes = () => {
     if (!columnSizes) {
-      return Array(columns).fill(`${(100 / columns).toFixed(2)}%`);
+      return Array(columns).fill(`${Math.floor(100 / columns)}%`);
     }
 
-    const sizes = columnSizes.split(',').map(size => parseFloat(size.trim()) || 0);
+    const sizes = columnSizes.split(',').map(size => Math.floor(parseFloat(size.trim())) || 0);
     if (sizes.length === 0) {
-      return Array(columns).fill(`${(100 / columns).toFixed(2)}%`);
+      return Array(columns).fill(`${Math.floor(100 / columns)}%`);
     }
 
     // 부족한 경우 나머지 공간을 균등 분배
@@ -36,7 +36,7 @@ export const TableComponent: React.FC<TableComponentProps> = ({
       const usedSpace = sizes.reduce((sum, size) => sum + size, 0);
       const remainingSpace = Math.max(0, 100 - usedSpace);
       const remainingColumns = columns - sizes.length;
-      const defaultSize = remainingSpace / remainingColumns;
+      const defaultSize = Math.floor(remainingSpace / remainingColumns);
       sizes.push(...Array(remainingColumns).fill(defaultSize));
     }
     // 넘치는 경우 초과분 제거 및 100%로 정규화
@@ -46,7 +46,14 @@ export const TableComponent: React.FC<TableComponentProps> = ({
 
     // 합이 100%가 되도록 정규화
     const total = sizes.reduce((sum, size) => sum + size, 0);
-    const normalizedSizes = sizes.map(size => (size / total * 100).toFixed(2));
+    const normalizedSizes = sizes.map((size, index) => {
+      if (index === sizes.length - 1) {
+        // 마지막 열은 나머지 값을 할당하여 합이 정확히 100이 되도록 함
+        const sumOthers = sizes.slice(0, -1).reduce((sum, s) => sum + Math.floor((s / total) * 100), 0);
+        return 100 - sumOthers;
+      }
+      return Math.floor((size / total) * 100);
+    });
 
     return normalizedSizes.map(size => `${size}%`);
   };
@@ -54,12 +61,12 @@ export const TableComponent: React.FC<TableComponentProps> = ({
   // 행 사이즈 계산
   const getRowSizes = () => {
     if (!rowSizes) {
-      return Array(rows).fill(`${(100 / rows).toFixed(2)}%`);
+      return Array(rows).fill(`${Math.floor(100 / rows)}%`);
     }
 
-    const sizes = rowSizes.split(',').map(size => parseFloat(size.trim()) || 0);
+    const sizes = rowSizes.split(',').map(size => Math.floor(parseFloat(size.trim())) || 0);
     if (sizes.length === 0) {
-      return Array(rows).fill(`${(100 / rows).toFixed(2)}%`);
+      return Array(rows).fill(`${Math.floor(100 / rows)}%`);
     }
 
     // 부족한 경우 나머지 공간을 균등 분배
@@ -67,7 +74,7 @@ export const TableComponent: React.FC<TableComponentProps> = ({
       const usedSpace = sizes.reduce((sum, size) => sum + size, 0);
       const remainingSpace = Math.max(0, 100 - usedSpace);
       const remainingRows = rows - sizes.length;
-      const defaultSize = remainingSpace / remainingRows;
+      const defaultSize = Math.floor(remainingSpace / remainingRows);
       sizes.push(...Array(remainingRows).fill(defaultSize));
     }
     // 넘치는 경우 초과분 제거 및 100%로 정규화
@@ -77,7 +84,14 @@ export const TableComponent: React.FC<TableComponentProps> = ({
 
     // 합이 100%가 되도록 정규화
     const total = sizes.reduce((sum, size) => sum + size, 0);
-    const normalizedSizes = sizes.map(size => (size / total * 100).toFixed(2));
+    const normalizedSizes = sizes.map((size, index) => {
+      if (index === sizes.length - 1) {
+        // 마지막 행은 나머지 값을 할당하여 합이 정확히 100이 되도록 함
+        const sumOthers = sizes.slice(0, -1).reduce((sum, s) => sum + Math.floor((s / total) * 100), 0);
+        return 100 - sumOthers;
+      }
+      return Math.floor((size / total) * 100);
+    });
 
     return normalizedSizes.map(size => `${size}%`);
   };
