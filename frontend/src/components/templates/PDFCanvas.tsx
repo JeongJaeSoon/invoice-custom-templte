@@ -15,6 +15,7 @@ interface PDFCanvasProps {
   selectedComponent?: CanvasComponent;
   onComponentClick?: (component: CanvasComponent) => void;
   onComponentUpdate?: (componentId: string, updates: Partial<CanvasComponent>) => void;
+  onTableCellSelect?: (cellIds: string[]) => void;
 }
 
 const PDFCanvas: React.FC<PDFCanvasProps> = ({
@@ -22,6 +23,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   selectedComponent,
   onComponentClick,
   onComponentUpdate,
+  onTableCellSelect,
 }) => {
   const canvasWidth = A4_WIDTH_MM * MM_TO_PX;
   const canvasHeight = A4_HEIGHT_MM * MM_TO_PX;
@@ -54,6 +56,15 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
     });
   };
 
+  const handleTableDataChange = (componentId: string, data: { [key: string]: string }) => {
+    onComponentUpdate?.(componentId, {
+      content: {
+        ...components.find(c => c.id === componentId)?.content,
+        tableData: data,
+      },
+    });
+  };
+
   const renderComponentContent = (component: CanvasComponent) => {
     switch (component.type) {
       case 'text':
@@ -76,13 +87,18 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
             columnSizes={component.content?.columnSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultColumnSizes(component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS)}
             rowSizes={component.content?.rowSizes || INITIAL_COMPONENT_SETTINGS.TABLE.getDefaultRowSizes(component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS)}
             onDataChange={(newData: { [key: string]: string }) => {
+              handleTableDataChange(component.id, newData);
+            }}
+            cellStyles={component.content?.tableCellStyles}
+            onCellStylesChange={(styles) => {
               onComponentUpdate?.(component.id, {
                 content: {
                   ...component.content,
-                  tableData: newData,
+                  tableCellStyles: styles,
                 },
               });
             }}
+            onCellSelect={onTableCellSelect}
           />
         );
       case 'image':

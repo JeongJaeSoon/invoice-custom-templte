@@ -8,6 +8,19 @@ export interface ComponentItem {
   type: ComponentType;
 }
 
+// 테이블 셀 스타일 타입
+export interface TableCellStyle {
+  borderTop?: string;
+  borderRight?: string;
+  borderBottom?: string;
+  borderLeft?: string;
+  backgroundColor?: string;
+  color?: string;
+  fontSize?: number;
+  fontWeight?: string;
+  textAlign?: 'left' | 'center' | 'right';
+}
+
 // 캔버스 컴포넌트 인터페이스
 export interface CanvasComponent extends ComponentItem {
   x: number;
@@ -26,6 +39,7 @@ export interface CanvasComponent extends ComponentItem {
     rows?: number;
     columns?: number;
     tableData?: { [key: string]: string };
+    tableCellStyles?: { [key: string]: TableCellStyle };
     imageUrl?: string;
     columnSizes?: string;
     rowSizes?: string;
@@ -42,6 +56,17 @@ export const INITIAL_COMPONENT_SETTINGS = {
     HEIGHT: 435,
     getDefaultColumnSizes: (columns: number) => Array(columns).fill(Math.floor(100/columns)).join(','),
     getDefaultRowSizes: (rows: number) => Array(rows).fill(Math.floor(100/rows)).join(','),
+    DEFAULT_CELL_STYLE: {
+      borderTop: '1px solid #000000',
+      borderRight: '1px solid #000000',
+      borderBottom: '1px solid #000000',
+      borderLeft: '1px solid #000000',
+      backgroundColor: '#ffffff',
+      color: '#000000',
+      fontSize: 14,
+      fontWeight: 'normal',
+      textAlign: 'left',
+    } as TableCellStyle,
   },
   // 텍스트 설정
   TEXT: {

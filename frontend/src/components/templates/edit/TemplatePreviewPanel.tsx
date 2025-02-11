@@ -7,6 +7,7 @@ interface TemplatePreviewPanelProps {
   selectedComponent?: CanvasComponent;
   onComponentClick: (component: CanvasComponent) => void;
   onComponentUpdate: (componentId: string, updates: Partial<CanvasComponent>) => void;
+  onTableCellSelect?: (cellIds: string[]) => void;
 }
 
 const TemplatePreviewPanel: React.FC<TemplatePreviewPanelProps> = ({
@@ -14,6 +15,7 @@ const TemplatePreviewPanel: React.FC<TemplatePreviewPanelProps> = ({
   selectedComponent,
   onComponentClick,
   onComponentUpdate,
+  onTableCellSelect,
 }) => {
   return (
     <div className="flex-1">
@@ -22,6 +24,7 @@ const TemplatePreviewPanel: React.FC<TemplatePreviewPanelProps> = ({
         selectedComponent={selectedComponent}
         onComponentClick={(component) => onComponentClick(component as CanvasComponent)}
         onComponentUpdate={onComponentUpdate}
+        onTableCellSelect={onTableCellSelect}
       />
     </div>
   );

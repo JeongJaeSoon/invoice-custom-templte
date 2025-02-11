@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { INITIAL_COMPONENT_SETTINGS, TableCellStyle } from '../../types/CanvasComponent';
 
 interface TableComponentProps {
   data: { [key: string]: string };
@@ -7,6 +8,9 @@ interface TableComponentProps {
   onDataChange: (data: { [key: string]: string }) => void;
   columnSizes?: string; // "30,40,30" 형식의 문자열 (%)
   rowSizes?: string; // "20,60,20" 형식의 문자열 (%)
+  cellStyles?: { [key: string]: TableCellStyle };
+  onCellStylesChange?: (styles: { [key: string]: TableCellStyle }) => void;
+  onCellSelect?: (selectedCells: string[]) => void;
 }
 
 export const TableComponent: React.FC<TableComponentProps> = ({
@@ -16,9 +20,35 @@ export const TableComponent: React.FC<TableComponentProps> = ({
   onDataChange,
   columnSizes,
   rowSizes,
+  cellStyles = {},
+  onCellSelect,
 }) => {
   const [selectedCell, setSelectedCell] = useState<string | null>(null);
+  const [selectedCells, setSelectedCells] = useState<string[]>([]);
   const [editValue, setEditValue] = useState<string>('');
+  const [isShiftPressed, setIsShiftPressed] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(true);
+      }
+    };
+
+    const handleKeyUp = (e: KeyboardEvent) => {
+      if (e.key === 'Shift') {
+        setIsShiftPressed(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('keyup', handleKeyUp);
+
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('keyup', handleKeyUp);
+    };
+  }, []);
 
   // 컬럼 사이즈 계산
   const getColumnSizes = () => {
@@ -97,8 +127,18 @@ export const TableComponent: React.FC<TableComponentProps> = ({
   };
 
   const handleCellClick = (cellId: string) => {
-    setSelectedCell(cellId);
-    setEditValue(data[cellId] || '');
+    if (isShiftPressed) {
+      const newSelectedCells = selectedCells.includes(cellId)
+        ? selectedCells.filter(id => id !== cellId)
+        : [...selectedCells, cellId];
+      setSelectedCells(newSelectedCells);
+      onCellSelect?.(newSelectedCells);
+    } else {
+      setSelectedCell(cellId);
+      setSelectedCells([cellId]);
+      setEditValue(data[cellId] || '');
+      onCellSelect?.([cellId]);
+    }
   };
 
   const handleCellBlur = () => {
@@ -126,13 +166,36 @@ export const TableComponent: React.FC<TableComponentProps> = ({
             <tr key={rowIndex} style={{ height: rowHeights[rowIndex] }}>
               {Array.from({ length: columns }).map((_, colIndex) => {
                 const cellId = `${rowIndex}-${colIndex}`;
+                const cellStyle = cellStyles[cellId] || {};
+                const isSelected = selectedCells.includes(cellId);
+
                 return (
                   <td
                     key={cellId}
-                    className="border border-gray-300 p-1 min-w-[50px] h-[30px]"
-                    style={{ width: columnWidths[colIndex] }}
+                    className={`p-1 min-w-[50px] h-[30px] relative`}
+                    style={{
+                      width: columnWidths[colIndex],
+                      borderTop: cellStyle.borderTop || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.borderTop,
+                      borderRight: cellStyle.borderRight || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.borderRight,
+                      borderBottom: cellStyle.borderBottom || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.borderBottom,
+                      borderLeft: cellStyle.borderLeft || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.borderLeft,
+                      backgroundColor: cellStyle.backgroundColor || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.backgroundColor,
+                      color: cellStyle.color || INITIAL_COMPONENT_SETTINGS.TABLE.DEFAULT_CELL_STYLE.color,
+                      fontSize: cellStyle.fontSize ? `${cellStyle.fontSize}px` : undefined,
+                      fontWeight: cellStyle.fontWeight,
+                      textAlign: cellStyle.textAlign,
+                    }}
                     onClick={() => handleCellClick(cellId)}
                   >
+                    {isSelected && (
+                      <div
+                        className="absolute inset-0 pointer-events-none"
+                        style={{
+                          border: '2px solid rgb(59, 130, 246)',
+                          zIndex: 10,
+                        }}
+                      />
+                    )}
                     {selectedCell === cellId ? (
                       <input
                         type="text"
@@ -140,11 +203,17 @@ export const TableComponent: React.FC<TableComponentProps> = ({
                         onChange={(e) => setEditValue(e.target.value)}
                         onBlur={handleCellBlur}
                         onKeyDown={handleKeyDown}
-                        className="w-full h-full outline-none"
+                        className="w-full h-full outline-none bg-transparent relative z-20"
+                        style={{
+                          color: 'inherit',
+                          fontSize: 'inherit',
+                          fontWeight: 'inherit',
+                          textAlign: (cellStyle.textAlign || 'left'),
+                        }}
                         autoFocus
                       />
                     ) : (
-                      <div className="w-full h-full">{data[cellId] || ''}</div>
+                      <div className="w-full h-full relative z-20">{data[cellId] || ''}</div>
                     )}
                   </td>
                 );

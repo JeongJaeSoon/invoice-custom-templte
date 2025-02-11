@@ -1,8 +1,9 @@
-import { CanvasComponent, ComponentItem } from '../../types/CanvasComponent';
+import { CanvasComponent, ComponentItem, TableCellStyle } from '../../types/CanvasComponent';
 import TemplatePreviewPanel from '../../components/templates/edit/TemplatePreviewPanel';
 import TemplateEditorPanel from '../../components/templates/edit/TemplateEditorPanel';
 import DebugMenu from '../../components/templates/DebugMenu';
 import { useTemplateStore } from '../../store/templateStore';
+import { useState } from 'react';
 
 const TemplateEditPage = () => {
   const {
@@ -14,6 +15,8 @@ const TemplateEditPage = () => {
     deleteComponent,
     reorderComponents,
   } = useTemplateStore();
+
+  const [selectedTableCells, setSelectedTableCells] = useState<string[]>([]);
 
   const handleComponentSelect = (component: ComponentItem) => {
     addComponent(component);
@@ -59,6 +62,24 @@ const TemplateEditPage = () => {
     updateComponent(selectedComponent.id, { name });
   };
 
+  const handleTableCellSelect = (cellIds: string[]) => {
+    setSelectedTableCells(cellIds);
+  };
+
+  const handleTableCellStyleChange = (cellIds: string[], style: Partial<TableCellStyle>) => {
+    if (!selectedComponent || !selectedComponent.content) return;
+
+    const updatedCellStyles = { ...selectedComponent.content.tableCellStyles };
+    cellIds.forEach(cellId => {
+      updatedCellStyles[cellId] = {
+        ...updatedCellStyles[cellId],
+        ...style,
+      };
+    });
+
+    handleContentChange('tableCellStyles', updatedCellStyles);
+  };
+
   return (
     <div className="relative w-full h-full">
       <div className="flex w-full h-full">
@@ -68,6 +89,7 @@ const TemplateEditPage = () => {
           selectedComponent={selectedComponent}
           onComponentClick={handleCanvasComponentClick}
           onComponentUpdate={updateComponent}
+          onTableCellSelect={handleTableCellSelect}
         />
 
         {/* 편집 패널 */}
@@ -82,6 +104,8 @@ const TemplateEditPage = () => {
           onCanvasComponentClick={handleCanvasComponentClick}
           onNameChange={handleNameChange}
           onComponentsReorder={reorderComponents}
+          selectedTableCells={selectedTableCells}
+          onTableCellStyleChange={handleTableCellStyleChange}
         />
       </div>
 
