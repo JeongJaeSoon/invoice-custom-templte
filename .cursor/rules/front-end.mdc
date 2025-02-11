@@ -1,0 +1,124 @@
+---
+description: 
+globs: *.tsx, *.ts
+---
+### Front-End Development Rules
+
+> **React, TypeScript, and Package Management Guidelines**
+
+---
+
+## 🚀 React Best Practices
+To avoid common anti-patterns and ensure best coding practices in React development.
+
+### ✅ **1. Avoid Unnecessary useState and useEffect Usage**
+- Do not use `useState` without an initializer or default value.
+  ```tsx
+  // ❌ Bad Practice
+  const [count, setCount] = useState();
+
+  // ✅ Good Practice
+  const [count, setCount] = useState<number>(0);
+  ```
+- Avoid using `useEffect` without dependencies unless absolutely necessary.
+  ```tsx
+  // ❌ Bad Practice
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  // ✅ Good Practice
+  useEffect(() => {
+    fetchData();
+  }, [userId]);
+  ```
+- Avoid using `setState` inside `useEffect` without dependencies to prevent unnecessary re-renders.
+  ```tsx
+  // ❌ Bad Practice
+  useEffect(() => {
+    setCount(count + 1);
+  });
+
+  // ✅ Good Practice
+  useEffect(() => {
+    setCount((prev) => prev + 1);
+  }, [dependency]);
+  ```
+
+---
+
+## 📌 TypeScript Guidelines
+To ensure type safety and avoid problematic type usage.
+
+### ✅ **2. Avoid 'any' and 'unknown' Types**
+- Do not use `any`; always specify a clear type.
+  ```tsx
+  // ❌ Bad Practice
+  function getData(): any {
+    return fetchData();
+  }
+
+  // ✅ Good Practice
+  function getData(): Promise<UserData> {
+    return fetchData();
+  }
+  ```
+- Avoid using `unknown` unless necessary.
+  ```tsx
+  // ❌ Bad Practice
+  function handleData(data: unknown) {
+    console.log(data);
+  }
+
+  // ✅ Good Practice
+  function handleData(data: string | number) {
+    console.log(data);
+  }
+  ```
+- Avoid forced type assertion using `as any`.
+  ```tsx
+  // ❌ Bad Practice
+  const user = getUser() as any;
+
+  // ✅ Good Practice
+  const user = getUser() as User;
+  ```
+
+---
+
+## 🔧 Package Management
+Ensure package installation and management follow best practices.
+
+### ✅ **3. Use Bun for Package Management**
+- Always use `bun` instead of `npm` or `yarn`.
+  ```sh
+  # ❌ Bad Practice
+  npm install react
+  yarn add react
+
+  # ✅ Good Practice
+  bun add react
+  ```
+
+### ✅ **4. Properly Categorize Dependencies**
+- Production dependencies should go under `dependencies`.
+  ```json
+  {
+    "dependencies": {
+      "react": "^18.0.0"
+    }
+  }
+  ```
+- Development dependencies should go under `devDependencies`.
+  ```sh
+  # ❌ Bad Practice
+  bun add eslint
+
+  # ✅ Good Practice
+  bun add eslint --dev
+  ```
+
+---
+
+Following these rules will help maintain **code quality, prevent unnecessary issues, and ensure a seamless development workflow**. 🚀
+
