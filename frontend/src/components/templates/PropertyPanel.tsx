@@ -1,5 +1,5 @@
 import React from 'react';
-import { CanvasComponent } from '../../types/CanvasComponent';
+import { CanvasComponent, INITIAL_COMPONENT_SETTINGS } from '../../types/CanvasComponent';
 
 interface PropertyPanelProps {
   component: CanvasComponent;
@@ -90,15 +90,14 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 텍스트 스타일
               </label>
               <div className="space-y-3">
-                {/* 글자 크기와 굵기를 한 행에 배치 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">글자 크기</label>
                     <input
                       type="number"
-                      value={component.style?.fontSize || 16}
+                      value={component.style?.fontSize || INITIAL_COMPONENT_SETTINGS.TEXT.STYLE.FONT_SIZE}
                       onChange={(e) =>
-                        onStyleChange('fontSize', parseInt(e.target.value) || 16)
+                        onStyleChange('fontSize', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TEXT.STYLE.FONT_SIZE)
                       }
                       className="w-full px-2 py-1.5 border border-gray-300 rounded-md"
                     />
@@ -106,7 +105,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">글꼴 굵기</label>
                     <select
-                      value={component.style?.fontWeight || 'normal'}
+                      value={component.style?.fontWeight || INITIAL_COMPONENT_SETTINGS.TEXT.STYLE.FONT_WEIGHT}
                       onChange={(e) => onStyleChange('fontWeight', e.target.value)}
                       className="w-full px-2 py-1.5 border border-gray-300 rounded-md"
                     >
@@ -122,12 +121,11 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   </div>
                 </div>
                 
-                {/* 정렬과 색상을 한 행에 배치 */}
                 <div className="grid grid-cols-2 gap-2">
                   <div>
                     <label className="block text-xs text-gray-500 mb-1">정렬</label>
                     <select
-                      value={component.style?.textAlign || 'left'}
+                      value={component.style?.textAlign || INITIAL_COMPONENT_SETTINGS.TEXT.STYLE.TEXT_ALIGN}
                       onChange={(e) => onStyleChange('textAlign', e.target.value)}
                       className="w-full px-2 py-1.5 border border-gray-300 rounded-md"
                     >
@@ -140,7 +138,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                     <label className="block text-xs text-gray-500 mb-1">색상</label>
                     <input
                       type="color"
-                      value={component.style?.color || '#000000'}
+                      value={component.style?.color || INITIAL_COMPONENT_SETTINGS.TEXT.STYLE.COLOR}
                       onChange={(e) => onStyleChange('color', e.target.value)}
                       className="w-full h-[34px] px-1 py-0.5 border border-gray-300 rounded-md"
                     />
@@ -177,9 +175,9 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <label className="block text-xs text-gray-500">행</label>
                   <input
                     type="number"
-                    value={component.content?.rows || 2}
+                    value={component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS}
                     onChange={(e) =>
-                      onContentChange('rows', parseInt(e.target.value) || 2)
+                      onContentChange('rows', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS)
                     }
                     min={1}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"
@@ -189,9 +187,9 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                   <label className="block text-xs text-gray-500">열</label>
                   <input
                     type="number"
-                    value={component.content?.columns || 2}
+                    value={component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS}
                     onChange={(e) =>
-                      onContentChange('columns', parseInt(e.target.value) || 2)
+                      onContentChange('columns', parseInt(e.target.value) || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS)
                     }
                     min={1}
                     className="w-full px-2 py-1 border border-gray-300 rounded-md"
@@ -202,7 +200,7 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
           </div>
         )}
 
-        {(component.type === 'image' || component.type === 'signature') && (
+        {component.type === 'image' && (
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -250,20 +248,6 @@ const PropertyPanel: React.FC<PropertyPanelProps> = ({
                 </div>
               </div>
             )}
-          </div>
-        )}
-
-        {component.type === 'qrcode' && (
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              QR 코드 데이터
-            </label>
-            <input
-              type="text"
-              value={component.content?.qrData || ''}
-              onChange={(e) => onContentChange('qrData', e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 rounded-md"
-            />
           </div>
         )}
       </div>

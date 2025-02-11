@@ -1,15 +1,8 @@
 import React, { useRef, useEffect } from 'react';
-import { ComponentItem } from './ComponentList';
 import { DndProvider, useDrag, useDrop } from 'react-dnd';
 import { HTML5Backend } from 'react-dnd-html5-backend';
+import { CanvasComponent } from '../../types/CanvasComponent';
 
-interface CanvasComponent extends ComponentItem {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  zIndex: number;
-}
 
 interface ComponentListPanelProps {
   components: CanvasComponent[];

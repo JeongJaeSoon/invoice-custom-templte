@@ -1,13 +1,6 @@
 import React from 'react';
-import PDFCanvas from './PDFCanvas';
-import { ComponentItem } from './ComponentList';
-
-interface CanvasComponent extends ComponentItem {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-}
+import PDFCanvas from './PDFCanvas'
+import { CanvasComponent } from '../../types/CanvasComponent';
 
 interface PDFPreviewProps {
   components: CanvasComponent[];

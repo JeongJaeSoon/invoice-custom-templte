@@ -1,9 +1,9 @@
 import React from 'react';
-import ComponentList, { ComponentItem } from '../ComponentList';
+import ComponentList from '../ComponentList';
 import ComponentListPanel from '../ComponentListPanel';
 import PropertyPanel from '../PropertyPanel';
 import ComponentNameEditor from '../ComponentNameEditor';
-import { CanvasComponent } from '../../../types/CanvasComponent';
+import { CanvasComponent, ComponentItem } from '../../../types/CanvasComponent';
 
 interface TemplateEditorPanelProps {
   components: CanvasComponent[];

@@ -1,6 +1,7 @@
 import React, { CSSProperties, useRef, useState, useCallback, useEffect } from 'react';
-import { ComponentItem } from './ComponentList';
 import Moveable from 'react-moveable';
+import { TableComponent } from './TableComponent';
+import { ComponentType, CanvasComponent, INITIAL_COMPONENT_SETTINGS, COMPONENT_ICONS } from '../../types/CanvasComponent';
 
 // A4 사이즈 (mm 단위)
 const A4_WIDTH_MM = 210;
@@ -8,28 +9,6 @@ const A4_HEIGHT_MM = 297;
 
 // mm를 픽셀로 변환 (96 DPI 기준)
 const MM_TO_PX = 3.7795275591;
-
-export type ComponentType = 'title' | 'text' | 'table' | 'image' | 'signature' | 'qrcode';
-
-export interface CanvasComponent extends ComponentItem {
-  x: number;
-  y: number;
-  width: number;
-  height: number;
-  style?: {
-    fontSize?: number;
-    fontWeight?: string;
-    textAlign?: 'left' | 'center' | 'right';
-    color?: string;
-  };
-  content?: {
-    text?: string;
-    rows?: number;
-    columns?: number;
-    imageUrl?: string;
-    qrData?: string;
-  };
-}
 
 interface PDFCanvasProps {
   components: CanvasComponent[];
@@ -59,7 +38,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
 
   const handleDoubleClick = (component: CanvasComponent, e: React.MouseEvent): void => {
     e.stopPropagation();
-    if (component.type !== 'title' && component.type !== 'text') return;
+    if (component.type !== 'text') return;
     setIsEditing(true);
   };
 
@@ -78,7 +57,6 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   const renderComponentContent = (component: CanvasComponent) => {
     switch (component.type) {
       case 'text':
-      case 'title':
         return (
           <div
             contentEditable={isEditing && selectedComponent?.id === component.id}
@@ -90,7 +68,22 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
           </div>
         );
       case 'table':
-        return <div>테이블</div>;
+        return (
+          <TableComponent
+            data={component.content?.tableData || {}}
+            rows={component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS}
+            columns={component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS}
+            onDataChange={(newData: { [key: string]: string }) => {
+              onComponentUpdate?.(component.id, {
+                content: {
+                  rows: component.content?.rows || INITIAL_COMPONENT_SETTINGS.TABLE.ROWS,
+                  columns: component.content?.columns || INITIAL_COMPONENT_SETTINGS.TABLE.COLUMNS,
+                  tableData: newData,
+                },
+              });
+            }}
+          />
+        );
       case 'image':
         return component.content?.imageUrl ? (
           <img
@@ -111,10 +104,6 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
             </div>
           </div>
         );
-      case 'signature':
-        return <div>서명</div>;
-      case 'qrcode':
-        return <div>QR 코드</div>;
       default:
         return null;
     }
@@ -176,22 +165,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
   };
 
   const getComponentIcon = (type: ComponentType): string => {
-    switch (type) {
-      case 'title':
-        return '📌';
-      case 'text':
-        return '📝';
-      case 'table':
-        return '📊';
-      case 'image':
-        return '🖼️';
-      case 'signature':
-        return '✍️';
-      case 'qrcode':
-        return '📱';
-      default:
-        return '📄';
-    }
+    return COMPONENT_ICONS[type];
   };
 
   // 컴포넌트의 좌표나 크기가 업데이트 될 때 Moveable UI를 업데이트
@@ -271,7 +245,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
               width: newWidth,
               height: newHeight,
               x: boundedX,
-              y: boundedY
+              y: boundedY,
             });
           }}
           onDragStart={e => {
@@ -297,7 +271,7 @@ const PDFCanvas: React.FC<PDFCanvasProps> = ({
             // 상태 업데이트
             onComponentUpdate?.(selectedComponent.id, {
               x: boundedX,
-              y: boundedY
+              y: boundedY,
             });
           }}
           onDragEnd={() => {

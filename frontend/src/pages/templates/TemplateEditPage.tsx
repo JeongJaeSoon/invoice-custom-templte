@@ -1,5 +1,4 @@
-import { ComponentItem } from '../../components/templates/ComponentList';
-import { CanvasComponent } from '../../types/CanvasComponent';
+  import { CanvasComponent, ComponentItem } from '../../types/CanvasComponent';
 import TemplatePreviewPanel from '../../components/templates/edit/TemplatePreviewPanel';
 import TemplateEditorPanel from '../../components/templates/edit/TemplateEditorPanel';
 import DebugMenu from '../../components/templates/DebugMenu';

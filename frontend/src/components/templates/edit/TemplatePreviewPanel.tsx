@@ -20,7 +20,7 @@ const TemplatePreviewPanel: React.FC<TemplatePreviewPanelProps> = ({
       <PDFPreview
         components={components}
         selectedComponent={selectedComponent}
-        onComponentClick={onComponentClick}
+        onComponentClick={(component) => onComponentClick(component as CanvasComponent)}
         onComponentUpdate={onComponentUpdate}
       />
     </div>
