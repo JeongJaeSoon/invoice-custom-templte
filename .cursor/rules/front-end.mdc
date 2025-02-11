@@ -1,5 +1,5 @@
 ---
-description: 
+description: Best practices for React, TypeScript, and package management in front-end development.
 globs: *.tsx, *.ts
 ---
 ### Front-End Development Rules

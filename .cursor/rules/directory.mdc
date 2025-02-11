@@ -1,9 +1,22 @@
 ---
-description:
-globs:
+description: Description of project structure
+globs: 
 ---
 
-# Your rule content
+# Description of project structure
 
-- You can @ files here
-- You can use markdown but dont have to
+## Overview
+- frontend : React.js Application (TypeScript)
+- backend : Nest.js Application (TypeScript)
+- infra
+
+## Front-End
+- src/components
+  - src/components/templates : templates components
+- src/pages
+  - src/pages/invoices/ : invoice feature pages
+  - src/pages/templates/ : templates feature pages
+
+## Back-End (TBD)
+
+## Infra (TBD)
